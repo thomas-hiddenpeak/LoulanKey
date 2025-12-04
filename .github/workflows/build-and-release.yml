@@ -1,0 +1,144 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  build-esp32:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [esp32s3, esp32s2]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+      
+      - name: Setup ESP-IDF
+        run: |
+          git clone --recursive https://github.com/espressif/esp-idf.git
+          cd esp-idf
+          git checkout tags/v5.3.1
+          ./install.sh ${{ matrix.target }}
+      
+      - name: Build firmware
+        run: |
+          cd pico-fido
+          source ../esp-idf/export.sh
+          idf.py set-target ${{ matrix.target }}
+          idf.py build
+      
+      - name: Create merged binary
+        run: |
+          cd pico-fido
+          source ../esp-idf/export.sh
+          mkdir -p release
+          cd build
+          esptool.py --chip $(echo ${{ matrix.target }} | tr '[:lower:]' '[:upper:]' | sed 's/ESP32S/ESP32-S/') merge_bin -o ../release/pico_fido_${{ matrix.target }}.bin @flash_args
+      
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.target }}
+          path: pico-fido/release/pico_fido_${{ matrix.target }}.bin
+          if-no-files-found: error
+
+  create-release:
+    needs: build-esp32
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      
+      - name: Prepare release files
+        run: |
+          mkdir -p release
+          cp artifacts/firmware-esp32s3/pico_fido_esp32s3.bin release/
+          cp artifacts/firmware-esp32s2/pico_fido_esp32s2.bin release/
+          
+          # Create checksums
+          cd release
+          sha256sum *.bin > SHA256SUMS.txt
+          cd ..
+      
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          
+          cat > RELEASE_NOTES.md << 'EOF'
+          ## LoulanKey Firmware Release ${{ github.ref_name }}
+          
+          ### 📦 包含的固件文件
+          
+          - `pico_fido_esp32s3.bin` - ESP32-S3 固件
+          - `pico_fido_esp32s2.bin` - ESP32-S2 固件
+          - `SHA256SUMS.txt` - 校验和文件
+          
+          ### 🔧 烧录方法
+          
+          #### 使用 esptool.py (推荐)
+          ```bash
+          # ESP32-S3
+          esptool.py --chip esp32s3 -p /dev/ttyUSB0 -b 460800 write_flash 0x0 pico_fido_esp32s3.bin
+          
+          # ESP32-S2
+          esptool.py --chip esp32s2 -p /dev/ttyUSB0 -b 460800 write_flash 0x0 pico_fido_esp32s2.bin
+          ```
+          
+          #### 使用 idf.py
+          ```bash
+          cd pico-fido
+          idf.py -p /dev/ttyUSB0 flash monitor
+          ```
+          
+          ### ⚠️ 重要提示
+          
+          1. 烧录前请备份重要数据
+          2. 首次烧录建议使用完整擦除：`esptool.py --chip [esp32s3|esp32s2] -p /dev/ttyUSB0 erase_flash`
+          3. 如需启用安全特性（Secure Boot、Flash 加密），请参考项目文档
+          
+          ### 📚 更多信息
+          
+          - [项目文档](https://github.com/thomas-hiddenpeak/LoulanKey/blob/main/README.md)
+          - [安全特性指南](https://github.com/thomas-hiddenpeak/LoulanKey/blob/main/SECURITY.md)
+          - [问题反馈](https://github.com/thomas-hiddenpeak/LoulanKey/issues)
+          
+          ---
+          
+          基于 [pico-fido](https://github.com/polhenarejos/pico-fido) 项目构建
+          EOF
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: RELEASE_NOTES.md
+          files: |
+            release/pico_fido_esp32s3.bin
+            release/pico_fido_esp32s2.bin
+            release/SHA256SUMS.txt
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
