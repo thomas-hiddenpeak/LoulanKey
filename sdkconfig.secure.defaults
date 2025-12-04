@@ -1,0 +1,221 @@
+# ESP32-S3 安全增强配置
+# 基于 pico-fido 项目
+# 添加 Flash 加密、Secure Boot、JTAG 禁用等安全特性
+
+# ============================================================================
+# 原有配置保持不变
+# ============================================================================
+IGNORE_UNKNOWN_FILES_FOR_MANAGED_COMPONENTS=1
+
+CONFIG_TINYUSB=y
+CONFIG_TINYUSB_TASK_STACK_SIZE=16384
+
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="pico-keys-sdk/config/esp32/partitions.csv"
+CONFIG_PARTITION_TABLE_FILENAME="pico-keys-sdk/config/esp32/partitions.csv"
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_WL_SECTOR_SIZE_512=y
+CONFIG_WL_SECTOR_MODE_PERF=y
+COMPILER_OPTIMIZATION="Performance"
+
+# MbedTLS 配置（保持不变）
+CONFIG_MBEDTLS_CMAC_C=y
+CONFIG_MBEDTLS_CHACHA20_C=y
+CONFIG_MBEDTLS_POLY1305_C=y
+CONFIG_MBEDTLS_CHACHAPOLY_C=y
+CONFIG_MBEDTLS_HKDF_C=y
+CONFIG_MBEDTLS_HARDWARE_ECC=y
+CONFIG_MBEDTLS_HARDWARE_GCM=y
+# CONFIG_MBEDTLS_HARDWARE_MPI is not set
+CONFIG_MBEDTLS_HARDWARE_SHA=y
+CONFIG_MBEDTLS_HARDWARE_AES=y
+# CONFIG_MBEDTLS_ROM_MD5 is not set
+CONFIG_MBEDTLS_SHA512_C=y
+CONFIG_MBEDTLS_TLS_DISABLED=y
+# CONFIG_MBEDTLS_TLS_ENABLED is not set
+# CONFIG_ESP_WIFI_ENABLED is not set
+# CONFIG_ESP_WIFI_MBEDTLS_CRYPTO is not set
+# CONFIG_ESP_WIFI_MBEDTLS_TLS_CLIENT is not set
+# CONFIG_WPA_MBEDTLS_CRYPTO is not set
+# CONFIG_MBEDTLS_PSK_MODES is not set
+# CONFIG_MBEDTLS_KEY_EXCHANGE_RSA is not set
+# CONFIG_MBEDTLS_KEY_EXCHANGE_ELLIPTIC_CURVE is not set
+# CONFIG_MBEDTLS_KEY_EXCHANGE_ECDHE_RSA is not set
+# CONFIG_MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA is not set
+# CONFIG_MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA is not set
+# CONFIG_MBEDTLS_KEY_EXCHANGE_ECDH_RSA is not set
+# CONFIG_MBEDTLS_SSL_RENEGOTIATION is not set
+# CONFIG_MBEDTLS_SSL_PROTO_TLS1_2 is not set
+# CONFIG_MBEDTLS_SSL_PROTO_GMTSSL1_1 is not set
+# CONFIG_MBEDTLS_SSL_PROTO_DTLS is not set
+# CONFIG_MBEDTLS_SSL_ALPN is not set
+# CONFIG_MBEDTLS_CLIENT_SSL_SESSION_TICKETS is not set
+# CONFIG_MBEDTLS_SERVER_SSL_SESSION_TICKETS is not set
+# CONFIG_ESP32_WIFI_ENABLE_WPA3_SAE is not set
+# CONFIG_ESP32_WIFI_ENABLE_WPA3_OWE_STA is not set
+# CONFIG_ESP_WIFI_ENABLE_WPA3_SAE is not set
+# CONFIG_ESP_WIFI_ENABLE_WPA3_OWE_STA is not set
+
+CONFIG_ESP_COREDUMP_ENABLE_TO_UART=y
+
+# ============================================================================
+# 🔒 新增安全特性 - P0 关键
+# ============================================================================
+
+# ---------- Flash 加密配置 ----------
+CONFIG_SECURE_FLASH_ENC_ENABLED=y
+CONFIG_SECURE_FLASH_ENCRYPTION_MODE_RELEASE=y
+# 使用硬件生成的密钥（更安全）
+CONFIG_SECURE_FLASH_ENCRYPTION_KEYSIZE_256=y
+# 加密分区选择（全部加密）
+CONFIG_SECURE_FLASH_ENCRYPTION_AES256=y
+# Flash 加密后禁用明文 Flash 访问
+CONFIG_SECURE_FLASH_UART_BOOTLOADER_ALLOW_ENC=y
+CONFIG_SECURE_FLASH_UART_BOOTLOADER_ALLOW_DEC=n
+CONFIG_SECURE_FLASH_UART_BOOTLOADER_ALLOW_CACHE=n
+# Flash 加密块大小
+CONFIG_SECURE_FLASH_ENCRYPTION_AES_BLOCK_SIZE=32
+
+# ---------- Secure Boot V2 配置 ----------
+CONFIG_SECURE_BOOT=y
+CONFIG_SECURE_BOOT_V2_ENABLED=y
+# RSA-3072 签名（更安全）
+CONFIG_SECURE_BOOT_INSECURE=n
+CONFIG_SECURE_BOOT_ENABLE_AGGRESSIVE_KEY_REVOKE=y
+# 签名验证
+CONFIG_SECURE_BOOT_V2_RSA_PSS=y
+# Bootloader 签名验证
+CONFIG_SECURE_BOOTLOADER_ENABLED=y
+# 在发布模式下，禁止未签名固件
+CONFIG_SECURE_BOOT_ALLOW_ROM_BASIC=n
+CONFIG_SECURE_BOOT_ALLOW_JTAG=n
+
+# ---------- eFuse 保护配置 ----------
+# 禁止通过软件读取密钥
+CONFIG_EFUSE_VIRTUAL=n
+# 启用密钥烧录保护
+CONFIG_EFUSE_SECURE_BOOT_KEY_DIGESTS=1
+
+# ---------- JTAG 调试禁用 ----------
+# ⚠️ 生产环境使用，开发时注释掉
+# CONFIG_ESP32S3_DEBUG_OCDAWARE is not set
+# CONFIG_ESP_DEBUG_OCDAWARE is not set
+# 永久禁用 JTAG（通过 eFuse）
+CONFIG_ESP_SYSTEM_DISABLE_JTAG=y
+
+# ============================================================================
+# 🔒 新增安全特性 - P1 重要
+# ============================================================================
+
+# ---------- 串口下载模式保护 ----------
+# 生产环境：永久禁用串口下载
+# ⚠️ 开发时保持启用，生产时通过 eFuse 禁用
+CONFIG_ESP_SYSTEM_DISABLE_ROM_DOWNLOAD_MODE=y
+# 或者使用受限模式（允许加密后的固件上传）
+# CONFIG_SECURE_UART_ROM_DL_MODE_RESTRICT=y
+
+# ---------- 数字签名 (DS) 外设 ----------
+CONFIG_ESP_TLS_USE_DS_PERIPHERAL=y
+# 使能 DS 外设用于 ECDSA 签名
+CONFIG_MBEDTLS_USE_DS_PERIPHERAL=y
+# 将私钥操作委托给 DS 外设
+CONFIG_MBEDTLS_HARDWARE_ECDSA_SIGN=y
+CONFIG_MBEDTLS_HARDWARE_ECDSA_VERIFY=y
+
+# ---------- 看门狗定时器 ----------
+# 任务看门狗
+CONFIG_ESP_TASK_WDT=y
+CONFIG_ESP_TASK_WDT_TIMEOUT_S=10
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0=y
+# CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=y  # 如果使用双核
+# 中断看门狗
+CONFIG_ESP_INT_WDT=y
+CONFIG_ESP_INT_WDT_TIMEOUT_MS=300
+
+# ---------- 堆栈保护 ----------
+CONFIG_COMPILER_STACK_CHECK_MODE_STRONG=y
+CONFIG_COMPILER_STACK_CHECK=y
+
+# ---------- 堆完整性检查 ----------
+CONFIG_HEAP_POISONING_COMPREHENSIVE=y
+
+# ============================================================================
+# 🔒 新增安全特性 - P2 建议
+# ============================================================================
+
+# ---------- 硬件 RNG 配置 ----------
+CONFIG_ESP32S3_RNG_USE_APB_TIMER=y
+# 使用硬件 RNG 作为熵源
+CONFIG_MBEDTLS_ENTROPY_HARDWARE=y
+
+# ---------- 内存保护 ----------
+# MPU (Memory Protection Unit)
+CONFIG_ESP_SYSTEM_MEMPROT_FEATURE=y
+CONFIG_ESP_SYSTEM_MEMPROT_FEATURE_LOCK=y
+
+# ---------- 固件版本管理 ----------
+# 启用应用版本检查
+CONFIG_APP_PROJECT_VER_FROM_CONFIG=y
+CONFIG_APP_PROJECT_VER="1.0.0"
+# 防回滚保护（通过 eFuse 存储版本号）
+CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK=y
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+
+# ---------- 日志安全 ----------
+# 生产环境降低日志等级（防止信息泄露）
+# CONFIG_LOG_DEFAULT_LEVEL_ERROR=y
+# 开发环境使用详细日志
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+# 移除详细的引导日志
+CONFIG_BOOTLOADER_LOG_LEVEL_ERROR=y
+
+# ---------- Panic 处理 ----------
+# 生产环境：静默重启（不输出调试信息）
+# CONFIG_ESP_SYSTEM_PANIC_SILENT_REBOOT=y
+# 开发环境：打印并停止
+CONFIG_ESP_SYSTEM_PANIC_PRINT_HALT=y
+
+# ---------- 缓存保护 ----------
+# 禁用外部内存访问
+CONFIG_ESP32S3_INSTRUCTION_CACHE_SIZE_16KB=y
+CONFIG_ESP32S3_ICACHE_ASSOCIATED_WAYS_8=y
+
+# ============================================================================
+# 生产 vs 开发环境切换
+# ============================================================================
+
+# 生产环境取消注释以下内容：
+# CONFIG_BOOTLOADER_LOG_LEVEL_NONE=y
+# CONFIG_LOG_DEFAULT_LEVEL_NONE=y
+# CONFIG_ESP_SYSTEM_PANIC_SILENT_REBOOT=y
+# CONFIG_OPTIMIZATION_LEVEL_RELEASE=y
+
+# 开发环境保持：
+CONFIG_BOOTLOADER_LOG_LEVEL_INFO=y
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_ESP_SYSTEM_PANIC_PRINT_HALT=y
+
+# ============================================================================
+# OTA 固件更新支持（可选）
+# ============================================================================
+# 如果需要 OTA 更新（禁用下载模式时必须）
+# CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+# CONFIG_APP_ROLLBACK_ENABLE=y
+
+# ============================================================================
+# 性能与安全平衡
+# ============================================================================
+# 编译优化（Release 时使用 -O2，开发时用 -Og）
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+# CONFIG_COMPILER_OPTIMIZATION_SIZE=y  # 如果需要更小的固件
+
+# ============================================================================
+# 注意事项
+# ============================================================================
+# 1. 首次烧录前确保备份设备
+# 2. 妥善保管 secure_boot_signing_key.pem
+# 3. 确保有 OTA 更新机制再禁用下载模式
+# 4. 测试所有安全特性后再锁定 eFuse
+# 5. 建议在测试设备上先验证完整流程

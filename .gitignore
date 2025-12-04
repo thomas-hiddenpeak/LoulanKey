@@ -1,0 +1,77 @@
+# Ignore build directories
+build/
+dist/
+*.egg-info/
+
+# Ignore compiled files
+*.pyc
+*.pyo
+__pycache__/
+*.so
+*.o
+*.a
+
+# Ignore ESP-IDF specific
+sdkconfig
+sdkconfig.old
+.config
+.config.old
+
+# Ignore keys and certificates (IMPORTANT!)
+keys/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Ignore backup files
+*.bak
+*.backup
+backups/
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore temporary files
+*.tmp
+temp/
+.cache/
+
+# Ignore OS-specific files
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Ignore documentation build artifacts
+docs/_build/
+docs/.doctrees/
+
+# Ignore test coverage
+.coverage
+htmlcov/
+*.cover
+
+# Ignore Python virtual environments
+venv/
+env/
+ENV/
+
+# Keep these files
+!.gitkeep
+!LICENSE
+!README.md
+
+# Specific to this project
+# Keep pico-fido as submodule, not full clone
+pico-fido/.git/
+pico-fido/build/
