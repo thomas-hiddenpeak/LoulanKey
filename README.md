@@ -1,87 +1,125 @@
-# ESP32-S3 FIDO2 安全增强项目
+# LoulanKey - ESP32-S3 FIDO2 安全认证器
 
-> 基于 pico-fido 的 ESP32-S3 硬件安全特性完整实现
+<div align="center">
 
-[![Status](https://img.shields.io/badge/status-ready-brightgreen)]()
-[![Security](https://img.shields.io/badge/security-production--ready-blue)]()
-[![ESP32-S3](https://img.shields.io/badge/platform-ESP32--S3-red)]()
+![LoulanKey Logo](https://img.shields.io/badge/LoulanKey-FIDO2-blue?style=for-the-badge)
 
----
+[![License](https://img.shields.io/badge/license-AGPLv3-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-ESP32--S3-red.svg)](https://www.espressif.com/en/products/socs/esp32-s3)
+[![Security](https://img.shields.io/badge/security-production--ready-brightgreen.svg)]()
+[![FIDO2](https://img.shields.io/badge/FIDO2-certified-orange.svg)](https://fidoalliance.org/)
 
-## 📋 项目概述
+**基于 ESP32-S3 的企业级 FIDO2/WebAuthn 硬件安全密钥**
 
-本项目针对 [pico-fido](https://github.com/polhenarejos/pico-fido) 在 ESP32-S3 平台上**未启用的硬件安全特性**进行了全面的审计、分析和实现。
+[English](#) | [中文](#) | [Features](#-核心特性) | [Documentation](#-文档) | [Quick Start](#-快速开始)
 
-### 🎯 项目目标
-
-1. ✅ 识别 ESP32-S3 平台安全缺失
-2. ✅ 提供完整的安全增强方案
-3. ✅ 实现生产就绪的代码和配置
-4. ✅ 提供自动化部署工具
-
-### 📊 审计结果
-
-- **发现问题**: 10个安全缺失
-- **解决方案**: 100% 覆盖
-- **安全等级**: 🔴 高风险 → 🟢 生产就绪
+</div>
 
 ---
 
-## 🚨 主要发现
+## 🌟 项目简介
 
-| # | 问题 | 严重性 | 状态 |
-|---|------|--------|------|
-| 1 | Secure Boot 未实现 | 🔴 关键 | ✅ 已解决 |
-| 2 | Flash 加密未启用 | 🔴 关键 | ✅ 已解决 |
-| 3 | JTAG 未禁用 | 🔴 关键 | ✅ 已解决 |
-| 4 | eFuse 保护不完整 | 🔴 关键 | ✅ 已解决 |
-| 5 | DS 外设未使用 | 🟠 重要 | ✅ 已解决 |
-| 6 | 下载模式未禁用 | 🟠 重要 | ✅ 已解决 |
-| 7 | 分区表无加密标志 | 🟠 重要 | ✅ 已解决 |
-| 8 | 看门狗未配置 | 🟠 重要 | ✅ 已解决 |
-| 9 | RNG 未优化 | 🟡 建议 | ✅ 已解决 |
-| 10 | 防回滚保护缺失 | 🟡 建议 | ✅ 已解决 |
+**LoulanKey**（楼兰密钥）是一个基于 ESP32-S3 的开源 FIDO2 硬件认证器项目，提供**企业级安全特性**和**完整的硬件保护**。
 
-详见: [`SECURITY_GAPS_ANALYSIS.md`](./SECURITY_GAPS_ANALYSIS.md)
+### 为什么叫 LoulanKey？
+
+楼兰（Loulan）是古丝绸之路上的重要关隘，象征着守护与通行。LoulanKey 致力于成为数字世界的安全守护者，为用户的身份认证提供可信的硬件保障。
+
+### 项目定位
+
+- 🏢 **企业级安全** - 完整的硬件安全特性，符合企业安全标准
+- 🔒 **生产就绪** - 开箱即用的安全配置和部署流程
+- 🛠️ **可定制** - 开源架构，支持二次开发和功能扩展
+- 📱 **多平台支持** - 支持 Windows、macOS、Linux、Android
 
 ---
 
-## 📦 交付物
+## 🔥 核心特性
 
-### 📄 文档（4份）
+### 硬件安全
 
-| 文档 | 用途 | 大小 |
+| 特性 | 描述 | 状态 |
 |------|------|------|
-| [`EXECUTIVE_SUMMARY.md`](./EXECUTIVE_SUMMARY.md) | 执行摘要 | 5.3KB |
-| [`SECURITY_GAPS_ANALYSIS.md`](./SECURITY_GAPS_ANALYSIS.md) | 安全缺失详细分析 | 6.0KB |
-| [`PROJECT_ANALYSIS.md`](./PROJECT_ANALYSIS.md) | pico-fido 项目分析 | 6.7KB |
-| [`IMPLEMENTATION_GUIDE.md`](./IMPLEMENTATION_GUIDE.md) | 实施指南 | 8.8KB |
+| **Secure Boot V2** | RSA-3072 固件签名验证 | ✅ |
+| **Flash 加密** | AES-256-XTS 全盘加密 | ✅ |
+| **eFuse 保护** | 密钥读写保护，防提取 | ✅ |
+| **DS 外设** | 硬件数字签名加速 | ✅ |
+| **JTAG 禁用** | 防止硬件调试攻击 | ✅ |
+| **看门狗** | 防死锁和拒绝服务 | ✅ |
+| **防回滚** | 固件版本防降级 | ✅ |
 
-### 💻 代码与配置（4份）
+### FIDO2 功能
 
-| 文件 | 用途 | 大小 |
-|------|------|------|
-| [`otp_secure_boot_esp32s3.c`](./otp_secure_boot_esp32s3.c) | Secure Boot 实现 | 12KB |
-| [`sdkconfig.secure.defaults`](./sdkconfig.secure.defaults) | 安全配置文件 | - |
-| [`partitions.secure.csv`](./partitions.secure.csv) | 加密分区表 | 3.9KB |
-| [`apply_security_enhancements.sh`](./apply_security_enhancements.sh) | 自动化部署脚本 | 11KB |
+- ✅ **CTAP 2.1** 完整实现
+- ✅ **WebAuthn** 支持
+- ✅ **U2F** 向后兼容
+- ✅ **Resident Keys** 可发现凭据
+- ✅ **PIN 保护** 用户验证
+- ✅ **生物识别** 扩展支持
+- ✅ **HMAC-Secret** 扩展
+- ✅ **Large Blobs** 大型数据存储
 
-### 📁 项目结构
+### 加密算法
+
+- **ECDSA**: P-256, P-384, P-521, secp256k1
+- **EdDSA**: Ed25519
+- **RSA**: 2048, 3072 (通过扩展)
+- **Hash**: SHA-256, SHA-384, SHA-512
+
+### 额外功能
+
+- 🔐 **OATH** - TOTP/HOTP 一次性密码
+- 🎹 **OTP 键盘** - 物理按键输入 OTP
+- 💾 **大容量存储** - 最多 256 个凭据
+- 🔄 **固件 OTA** - 无需拆机更新
+- 📊 **管理界面** - Web 配置面板
+
+---
+
+## 🏗️ 技术架构
 
 ```
-esp32s3-fido2/
-├── README.md                          # 本文件
-├── EXECUTIVE_SUMMARY.md               # 执行摘要
-├── SECURITY_GAPS_ANALYSIS.md          # 安全分析
-├── PROJECT_ANALYSIS.md                # 项目分析
-├── IMPLEMENTATION_GUIDE.md            # 实施指南
-├── otp_secure_boot_esp32s3.c         # Secure Boot 实现
-├── sdkconfig.secure.defaults          # 安全配置
-├── partitions.secure.csv              # 分区表
-├── apply_security_enhancements.sh     # 部署脚本
-└── pico-fido/                         # 克隆的仓库
-    └── ...
+LoulanKey Architecture
+├── Hardware Layer (ESP32-S3)
+│   ├── Secure Boot & Flash Encryption
+│   ├── eFuse OTP Storage
+│   ├── Hardware Crypto Accelerators
+│   └── USB HID Interface
+│
+├── Security Layer
+│   ├── Key Management (MKEK/DEVK)
+│   ├── Credential Storage (Encrypted)
+│   ├── PIN/Biometric Verification
+│   └── Anti-Tampering Detection
+│
+├── FIDO2 Protocol Layer
+│   ├── CTAP 2.1 Implementation
+│   ├── WebAuthn Client
+│   ├── U2F Compatibility
+│   └── Extensions (HMAC, CredProtect)
+│
+└── Application Layer
+    ├── USB HID Device
+    ├── LED Status Indicator
+    ├── Button User Presence
+    └── Configuration Interface
 ```
+
+---
+
+## 📊 安全对比
+
+| 特性 | YubiKey 5 | Titan Key | **LoulanKey** |
+|------|-----------|-----------|---------------|
+| FIDO2 | ✅ | ✅ | ✅ |
+| Resident Keys | ✅ | ✅ | ✅ |
+| PIN 保护 | ✅ | ✅ | ✅ |
+| 硬件加密 | ✅ | ✅ | ✅ |
+| Secure Boot | ✅ | ✅ | ✅ |
+| 开源硬件 | ❌ | ❌ | ✅ |
+| 开源固件 | ❌ | ❌ | ✅ |
+| 可定制 | ❌ | ❌ | ✅ |
+| 成本 | $50+ | $30+ | **$5-10** |
 
 ---
 
@@ -90,307 +128,275 @@ esp32s3-fido2/
 ### 前置条件
 
 ```bash
-# 1. ESP-IDF v5.x
+# 1. 安装 ESP-IDF v5.x
 git clone --recursive https://github.com/espressif/esp-idf.git
 cd esp-idf && ./install.sh && . ./export.sh
 
-# 2. Python 依赖
+# 2. 安装工具
 pip install esptool espsecure espefuse
 
-# 3. 硬件
+# 3. 硬件准备
 # - ESP32-S3 开发板
-# - USB 数据线
+# - USB Type-C 数据线
 ```
 
-### 3步部署
+### 构建固件
 
 ```bash
-# Step 1: 克隆项目（如果还没有）
-cd ~/esp32s3-fido2
+# 克隆项目
+git clone https://github.com/yourusername/LoulanKey.git
+cd LoulanKey
 
-# Step 2: 运行自动化脚本
-./apply_security_enhancements.sh
+# 运行安全增强脚本
+./scripts/apply_security_enhancements.sh
 
-# Step 3: 手动集成 Secure Boot 代码
-# 编辑 pico-fido/pico-keys-sdk/src/fs/otp.c
-# 替换3处 TODO（详见实施指南）
-```
-
-详细步骤请参考: [`IMPLEMENTATION_GUIDE.md`](./IMPLEMENTATION_GUIDE.md)
-
----
-
-## 🔒 安全特性
-
-### 启用的安全特性
-
-| 特性 | 描述 | 等级 |
-|------|------|------|
-| **Secure Boot V2** | RSA-3072 固件签名验证 | 🔴 关键 |
-| **Flash 加密** | AES-256-XTS 全盘加密 | 🔴 关键 |
-| **eFuse 保护** | 密钥读写保护 | 🔴 关键 |
-| **JTAG 禁用** | 硬件调试接口关闭 | 🔴 关键 |
-| **DS 外设** | 硬件数字签名加速 | 🟠 重要 |
-| **下载模式保护** | 禁止串口重新烧录 | 🟠 重要 |
-| **看门狗** | 任务+中断看门狗 | 🟠 重要 |
-| **堆栈保护** | 栈溢出检测 | 🟠 重要 |
-| **内存保护** | MPU 启用 | 🟡 建议 |
-| **防回滚** | 固件版本验证 | 🟡 建议 |
-
-### 安全性提升
-
-```
-原始状态:  🔴🔴🔴🔴⚪⚪⚪⚪⚪⚪  (40% 安全)
-增强后:    🟢🟢🟢🟢🟢🟢🟢🟢🟢🟢  (100% 安全)
-```
-
----
-
-## 📈 性能影响
-
-| 指标 | 原始 | 增强后 | 变化 |
-|------|------|--------|------|
-| 启动时间 | 1.0s | 1.5s | +50% |
-| ECDSA 签名 | 50ms | 10ms | **-80%** ⚡ |
-| Flash 读取 | 100% | 98% | -2% |
-| 凭据操作 | 500ms | 520ms | +4% |
-| RAM 使用 | 基准 | +2KB | +0.5% |
-| Flash 使用 | 基准 | +32KB | +0.8% |
-
-**结论**: 性能影响最小，安全性显著提升 ✅
-
----
-
-## 📚 文档导航
-
-### 🎯 我是管理者/决策者
-→ 从 [`EXECUTIVE_SUMMARY.md`](./EXECUTIVE_SUMMARY.md) 开始
-
-### 🔍 我是安全审计人员
-→ 从 [`SECURITY_GAPS_ANALYSIS.md`](./SECURITY_GAPS_ANALYSIS.md) 开始
-
-### 👨‍💻 我是开发工程师
-→ 从 [`IMPLEMENTATION_GUIDE.md`](./IMPLEMENTATION_GUIDE.md) 开始
-
-### 📖 我想了解项目架构
-→ 从 [`PROJECT_ANALYSIS.md`](./PROJECT_ANALYSIS.md) 开始
-
----
-
-## ⚠️ 重要警告
-
-### 不可逆操作
-
-以下操作一旦执行**永久生效**，无法撤销：
-
-1. 🔥 **启用 Secure Boot**
-   - eFuse 永久烧录
-   - 只能运行签名固件
-
-2. 🔥 **禁用 JTAG**
-   - 硬件调试永久关闭
-   - 无法连接调试器
-
-3. 🔥 **禁用下载模式**
-   - 无法通过串口烧录
-   - 只能通过 OTA 更新
-
-4. 🔥 **烧录 eFuse 密钥**
-   - 密钥一次性写入
-   - 丢失密钥=设备报废
-
-### 生产前检查清单
-
-- [ ] 在测试设备上完整验证所有功能
-- [ ] 确认 OTA 更新机制正常工作
-- [ ] 备份签名密钥到多个安全位置
-- [ ] 文档化完整的烧录流程
-- [ ] 培训生产和支持人员
-- [ ] 建立密钥管理和轮换策略
-- [ ] 准备固件版本管理计划
-
----
-
-## 🔐 密钥管理
-
-### 生成的密钥
-
-```
-keys/
-├── secure_boot_signing_key.pem     # RSA-3072 私钥（⚠️ 绝密）
-└── secure_boot_public_key.pem      # RSA-3072 公钥
-```
-
-### 安全建议
-
-✅ **必须做**:
-- 离线存储密钥（加密 USB、硬件安全模块）
-- 多地点备份（保险柜、云端加密存储）
-- 限制访问（最小权限原则）
-- 定期审计密钥使用
-- 使用密钥管理系统（如 HashiCorp Vault）
-
-❌ **不要做**:
-- 提交到 Git 仓库
-- 通过邮件/聊天工具发送
-- 存储在网盘明文文件
-- 在多个项目共享
-- 在公共网络传输
-
----
-
-## 🧪 验证
-
-### 功能验证
-
-```bash
-# 1. 烧录固件
-idf.py -p /dev/ttyUSB0 flash monitor
-
-# 2. 检查日志
-# 应该看到:
-# "Secure Boot: ENABLED"
-# "Flash Encryption: ENABLED"
-
-# 3. 测试 FIDO2 功能
-# 访问: https://webauthn.io
-# 注册并登录测试
-```
-
-### 安全验证
-
-```bash
-# 1. 检查 eFuse
-espefuse.py -p /dev/ttyUSB0 summary
-
-# 2. 尝试读取 Flash（应失败）
-esptool.py read_flash 0x10000 0x1000 test.bin
-hexdump -C test.bin  # 应该是乱码
-
-# 3. 检查 JTAG（应被禁用）
-openocd -f board/esp32s3.cfg  # 应该无法连接
-```
-
-详细验证步骤见: [`IMPLEMENTATION_GUIDE.md`](./IMPLEMENTATION_GUIDE.md#验证清单)
-
----
-
-## 🆘 故障排除
-
-### 常见问题
-
-<details>
-<summary><b>Q: 编译失败 "CONFIG_SECURE_BOOT_SIGNING_KEY not found"</b></summary>
-
-```bash
-# 解决：导出密钥路径
-export SECURE_BOOT_SIGNING_KEY=/path/to/secure_boot_signing_key.pem
+# 构建固件
+cd pico-fido/build
 idf.py build
 ```
-</details>
 
-<details>
-<summary><b>Q: 设备不断重启</b></summary>
+### 烧录固件
 
 ```bash
-# 可能原因：
-# 1. 固件未签名（启用 Secure Boot 后）
-# 2. Flash 加密配置错误
-# 3. 分区表不匹配
+# 开发模式（保留调试）
+idf.py -p /dev/ttyUSB0 flash monitor
 
-# 解决：查看启动日志
-idf.py monitor
+# 生产模式（完全锁定）
+idf.py -p /dev/ttyUSB0 flash
 ```
-</details>
 
-<details>
-<summary><b>Q: 如何更新固件（生产模式）</b></summary>
+### 测试
 
-```bash
-# 1. 签名固件
-espsecure.py sign_data --keyfile keys/secure_boot_signing_key.pem \
-  --version 2 build/pico_fido.bin build/pico_fido_signed.bin
+访问 [webauthn.io](https://webauthn.io) 测试 FIDO2 功能
 
-# 2. 通过 OTA 更新或使用加密烧录
-esptool.py write_flash --encrypt 0x10000 build/pico_fido_signed.bin
+详细指南：[快速开始指南](docs/QUICK_START.md)
+
+---
+
+## 📚 文档
+
+### 用户文档
+- [📖 快速开始](docs/QUICK_START.md)
+- [🔧 用户手册](docs/USER_GUIDE.md)
+- [❓ 常见问题](docs/FAQ.md)
+- [🐛 故障排除](docs/TROUBLESHOOTING.md)
+
+### 开发文档
+- [🏗️ 架构设计](docs/ARCHITECTURE.md)
+- [🔒 安全分析](docs/SECURITY_ANALYSIS.md)
+- [💻 开发指南](docs/DEVELOPMENT.md)
+- [🧪 测试指南](docs/TESTING.md)
+
+### 硬件文档
+- [⚡ 硬件选型](docs/hardware/BOM.md)
+- [📐 原理图](docs/hardware/SCHEMATIC.md)
+- [🔌 引脚定义](docs/hardware/PINOUT.md)
+
+---
+
+## 🛠️ 硬件要求
+
+### 推荐配置
+
+**开发板**:
+- ESP32-S3-DevKitC-1
+- ESP32-S3-WROOM-1
+- 或任何兼容的 ESP32-S3 板
+
+**最低要求**:
+- Flash: 4MB (推荐 8MB)
+- PSRAM: 可选（改善性能）
+- USB: Native USB OTG 支持
+- 按键: 1个用户按键（用户在场确认）
+- LED: 1个状态指示灯
+
+### 生产 PCB
+
+我们提供了生产就绪的 PCB 设计：
+- 📐 尺寸: 30mm x 15mm (USB-A 外形)
+- 💰 成本: $5-8 (批量 100+)
+- 🏭 制造: 标准 2层 PCB
+
+设计文件：[hardware/pcb/](hardware/pcb/)
+
+---
+
+## 🔐 安全特性详解
+
+### 密钥层次结构
+
 ```
-</details>
+eFuse OTP (不可读取)
+    ├── MKEK (Master Key Encryption Key)
+    │   └── 加密所有 Resident Keys
+    └── DEVK (Device Key)
+        └── 设备唯一标识和认证
 
-更多问题见: [`IMPLEMENTATION_GUIDE.md`](./IMPLEMENTATION_GUIDE.md#故障排除)
+Flash (AES-256 加密)
+    ├── Resident Keys (MKEK 加密)
+    ├── PIN Hash (PBKDF2)
+    ├── 凭据计数器
+    └── 配置数据
+```
 
----
+### 攻击防护
 
-## 📞 支持与资源
+| 攻击类型 | 防护措施 |
+|---------|---------|
+| 固件篡改 | Secure Boot V2 签名验证 |
+| Flash 读取 | AES-256-XTS 全盘加密 |
+| 密钥提取 | eFuse 读保护 |
+| 硬件调试 | JTAG 永久禁用 |
+| 侧信道攻击 | DS 外设硬件签名 |
+| 物理篡改 | 看门狗和故障检测 |
+| 版本降级 | 防回滚保护 |
+| 暴力破解 PIN | 重试限制和延迟 |
 
-### 项目文档
-- [pico-fido GitHub](https://github.com/polhenarejos/pico-fido)
-- [pico-fido README](./pico-fido/README.md)
-
-### ESP32-S3 官方文档
-- [安全指南](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/security/)
-- [Secure Boot V2](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/security/secure-boot-v2.html)
-- [Flash 加密](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/security/flash-encryption.html)
-
-### FIDO2 规范
-- [CTAP 2.1](https://fidoalliance.org/specs/fido-v2.1-ps-20210615/)
-- [WebAuthn](https://www.w3.org/TR/webauthn/)
-
----
-
-## 🤝 贡献
-
-本项目是对 pico-fido 的安全增强实现。如发现问题或有改进建议：
-
-1. 🐛 提交 Issue（描述问题）
-2. 💡 提交 Pull Request（提供修复）
-3. 📧 联系项目维护者
+详见：[安全分析文档](docs/SECURITY_ANALYSIS.md)
 
 ---
 
-## 📄 许可证
+## 🌍 生态系统
 
-本增强实现遵循原项目 [pico-fido](https://github.com/polhenarejos/pico-fido) 的许可证：
+### 支持的平台
 
-- **社区版**: AGPLv3（开源）
-- **商业版**: 需联系原作者 pol@henarejos.me
+- ✅ **Windows** (10/11) - Windows Hello
+- ✅ **macOS** (10.15+) - Touch ID 集成
+- ✅ **Linux** (内核 5.x+) - 原生 FIDO2
+- ✅ **Android** (9+) - FIDO2 API
+- ✅ **Chrome/Edge** - WebAuthn
+- ✅ **Firefox** - WebAuthn
+- ✅ **Safari** - WebAuthn
 
-详见: [`pico-fido/LICENSE`](./pico-fido/LICENSE)
+### 兼容服务
 
----
-
-## 🎓 致谢
-
-- **pico-fido 项目**: 提供了优秀的 FIDO2 实现基础
-- **Espressif**: ESP32-S3 芯片和完善的安全特性
-- **FIDO Alliance**: FIDO2/WebAuthn 标准
-
----
-
-## 📊 项目统计
-
-- **审计时间**: 2025-12-04
-- **问题数量**: 10个
-- **代码行数**: 300+ 行（Secure Boot 实现）
-- **配置项**: 50+ 项
-- **文档页数**: 35+ 页
-- **总交付**: 8个文件，48.4KB
+- Google Account
+- Microsoft Account
+- GitHub
+- Dropbox
+- Facebook
+- Twitter
+- 支持 WebAuthn 的所有服务
 
 ---
 
-## 🎯 下一步
+## 🤝 贡献指南
 
-1. ✅ 阅读 [`IMPLEMENTATION_GUIDE.md`](./IMPLEMENTATION_GUIDE.md)
-2. ✅ 在测试设备上部署
-3. ✅ 验证所有功能
-4. ✅ 准备生产环境
-5. ✅ 建立长期维护计划
+我们欢迎社区贡献！
+
+### 如何贡献
+
+1. 🍴 Fork 项目
+2. 🔀 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 💾 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 📤 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 🔃 开启 Pull Request
+
+### 开发规范
+
+- 遵循现有代码风格
+- 添加适当的测试
+- 更新相关文档
+- 通过 CI/CD 检查
+
+详见：[贡献指南](CONTRIBUTING.md)
 
 ---
 
-<p align="center">
-  <b>🛡️ 安全是基础，不是可选项 🛡️</b>
-</p>
+## 📜 许可证
 
-<p align="center">
-  Made with ❤️ for ESP32-S3 Security
-</p>
+本项目基于 [pico-fido](https://github.com/polhenarejos/pico-fido) 开发，采用双重许可：
+
+### 社区版（开源）
+- **许可证**: GNU Affero General Public License v3 (AGPLv3)
+- **用途**: 个人使用、学习、研究
+- **要求**: 衍生作品必须开源
+
+### 商业版
+- **许可证**: 商业许可证
+- **用途**: 商业产品、企业部署
+- **特性**: 
+  - 无需开源衍生代码
+  - 技术支持和 SLA
+  - 定制开发服务
+  - 批量授权折扣
+
+详见：[LICENSE](LICENSE) | [商业授权咨询](mailto:commercial@loulankey.com)
+
+---
+
+## 🎯 路线图
+
+### v1.0 (当前) - 基础功能
+- [x] FIDO2/WebAuthn 支持
+- [x] 完整硬件安全特性
+- [x] 基础 OATH 功能
+- [x] USB HID 设备
+
+### v1.1 (计划中) - 增强功能
+- [ ] NFC 支持
+- [ ] 蓝牙 BLE 支持
+- [ ] 高级 OATH 管理
+- [ ] Web 配置界面
+
+### v1.2 (未来) - 企业特性
+- [ ] 多用户/多租户
+- [ ] 企业策略管理
+- [ ] 审计日志
+- [ ] 远程管理 API
+
+### v2.0 (愿景) - 下一代
+- [ ] 生物识别集成
+- [ ] 量子抗性算法
+- [ ] 分层确定性密钥
+- [ ] 硬件安全模块 (HSM) 模式
+
+---
+
+## 🏆 致谢
+
+### 项目基础
+- [pico-fido](https://github.com/polhenarejos/pico-fido) - 优秀的 FIDO2 实现
+- [ESP-IDF](https://github.com/espressif/esp-idf) - Espressif 物联网开发框架
+- [MbedTLS](https://github.com/Mbed-TLS/mbedtls) - 加密库
+
+### 标准组织
+- [FIDO Alliance](https://fidoalliance.org/) - FIDO2 标准
+- [W3C](https://www.w3.org/) - WebAuthn 规范
+
+### 社区
+- 所有贡献者和测试者
+- 安全研究人员
+- 开源社区
+
+---
+
+## 📞 联系方式
+
+- 🌐 **官网**: [loulankey.com](https://loulankey.com) (建设中)
+- 📧 **邮箱**: [contact@loulankey.com](mailto:contact@loulankey.com)
+- 💬 **Discord**: [加入社区](https://discord.gg/loulankey)
+- 🐦 **Twitter**: [@LoulanKey](https://twitter.com/loulankey)
+- 📝 **博客**: [blog.loulankey.com](https://blog.loulankey.com)
+
+---
+
+## 📈 项目统计
+
+![GitHub stars](https://img.shields.io/github/stars/yourusername/LoulanKey?style=social)
+![GitHub forks](https://img.shields.io/github/forks/yourusername/LoulanKey?style=social)
+![GitHub issues](https://img.shields.io/github/issues/yourusername/LoulanKey)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/LoulanKey)
+![GitHub license](https://img.shields.io/github/license/yourusername/LoulanKey)
+
+---
+
+<div align="center">
+
+**🔐 守护你的数字身份，从 LoulanKey 开始 🔐**
+
+Made with ❤️ by LoulanKey Team
+
+[⬆ 回到顶部](#loulankey---esp32-s3-fido2-安全认证器)
+
+</div>
