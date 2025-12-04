@@ -174,6 +174,24 @@ idf.py -p /dev/ttyUSB0 flash monitor
 idf.py -p /dev/ttyUSB0 flash
 ```
 
+### 使用预编译固件（推荐）
+
+如果您不想自己编译，可以直接下载预编译的固件：
+
+1. 访问 [Releases 页面](https://github.com/thomas-hiddenpeak/LoulanKey/releases)
+2. 下载适合您开发板的固件：
+   - `pico_fido_esp32s3.bin` - ESP32-S3 固件
+   - `pico_fido_esp32s2.bin` - ESP32-S2 固件
+3. 使用 esptool 烧录：
+
+```bash
+# ESP32-S3
+esptool.py --chip esp32s3 -p /dev/ttyUSB0 -b 460800 write_flash 0x0 pico_fido_esp32s3.bin
+
+# ESP32-S2
+esptool.py --chip esp32s2 -p /dev/ttyUSB0 -b 460800 write_flash 0x0 pico_fido_esp32s2.bin
+```
+
 ### 测试
 
 访问 [webauthn.io](https://webauthn.io) 测试 FIDO2 功能
@@ -313,6 +331,32 @@ Flash (AES-256 加密)
 
 ---
 
+## 🚀 发布流程
+
+### 自动化发布
+
+本项目使用 GitHub Actions 实现自动化构建和发布：
+
+1. **创建版本标签**：
+   ```bash
+   git tag -a v1.0.0 -m "Release version 1.0.0"
+   git push origin v1.0.0
+   ```
+
+2. **自动构建**：GitHub Actions 会自动：
+   - 为 ESP32-S3 和 ESP32-S2 编译固件
+   - 生成合并的二进制文件
+   - 计算 SHA256 校验和
+   - 创建 GitHub Release
+
+3. **下载固件**：用户可以从 [Releases 页面](https://github.com/thomas-hiddenpeak/LoulanKey/releases) 下载预编译固件
+
+### 手动触发构建
+
+维护者也可以通过 GitHub Actions 的 "workflow_dispatch" 手动触发构建，而无需创建标签。
+
+---
+
 ## 📜 许可证
 
 本项目基于 [pico-fido](https://github.com/polhenarejos/pico-fido) 开发，遵循相同的开源许可证：
@@ -344,6 +388,7 @@ Flash (AES-256 加密)
 - [x] Flash 加密支持
 - [x] eFuse 密钥保护
 - [x] 完整的中文文档
+- [x] 自动化构建和发布流程
 
 ### 未来计划
 - [ ] 更完善的测试覆盖
