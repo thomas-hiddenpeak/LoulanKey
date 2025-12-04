@@ -1,4 +1,4 @@
-# LoulanKey - ESP32-S3 FIDO2 安全认证器
+# LoulanKey - ESP32-S3 FIDO2 Security Authenticator
 
 <div align="center">
 
@@ -6,12 +6,11 @@
 
 [![License](https://img.shields.io/badge/license-AGPLv3-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-ESP32--S3-red.svg)](https://www.espressif.com/en/products/socs/esp32-s3)
-[![Security](https://img.shields.io/badge/security-production--ready-brightgreen.svg)]()
-[![FIDO2](https://img.shields.io/badge/FIDO2-certified-orange.svg)](https://fidoalliance.org/)
+[![Based on](https://img.shields.io/badge/based%20on-pico--fido-orange.svg)](https://github.com/polhenarejos/pico-fido)
 
-**基于 ESP32-S3 的企业级 FIDO2/WebAuthn 硬件安全密钥**
+**基于 ESP32-S3 和 pico-fido 的 FIDO2/WebAuthn 硬件安全密钥增强版**
 
-[English](#) | [中文](#) | [Features](#-核心特性) | [Documentation](#-文档) | [Quick Start](#-快速开始)
+[Features](#-核心特性) | [Quick Start](#-快速开始) | [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -19,7 +18,7 @@
 
 ## 🌟 项目简介
 
-**LoulanKey**（楼兰密钥）是一个基于 ESP32-S3 的开源 FIDO2 硬件认证器项目，提供**企业级安全特性**和**完整的硬件保护**。
+**LoulanKey**（楼兰密钥）是一个基于 [pico-fido](https://github.com/polhenarejos/pico-fido) 的 ESP32-S3 FIDO2 硬件安全认证器项目，专注于为 ESP32-S3 平台实现完整的**硬件安全特性**。
 
 ### 为什么叫 LoulanKey？
 
@@ -27,10 +26,12 @@
 
 ### 项目定位
 
-- 🏢 **企业级安全** - 完整的硬件安全特性，符合企业安全标准
-- 🔒 **生产就绪** - 开箱即用的安全配置和部署流程
-- 🛠️ **可定制** - 开源架构，支持二次开发和功能扩展
-- 📱 **多平台支持** - 支持 Windows、macOS、Linux、Android
+本项目基于优秀的 [pico-fido](https://github.com/polhenarejos/pico-fido) 项目，针对 ESP32-S3 平台进行了以下增强：
+
+- 🔒 **硬件安全增强** - 完整实现 ESP32-S3 的 Secure Boot V2、Flash 加密、eFuse 保护等特性
+- 🛠️ **开源学习** - 提供安全特性的详细实现文档和分析
+- 📚 **中文文档** - 完整的中文文档和实现指南
+- 🔧 **可定制** - 开源架构，支持学习和研究
 
 ---
 
@@ -116,10 +117,11 @@ LoulanKey Architecture
 | PIN 保护 | ✅ | ✅ | ✅ |
 | 硬件加密 | ✅ | ✅ | ✅ |
 | Secure Boot | ✅ | ✅ | ✅ |
-| 开源硬件 | ❌ | ❌ | ✅ |
+| 开源硬件 | ❌ | ❌ | 部分开源 |
 | 开源固件 | ❌ | ❌ | ✅ |
-| 可定制 | ❌ | ❌ | ✅ |
-| 成本 | $50+ | $30+ | **$5-10** |
+| 学习研究 | ❌ | ❌ | ✅ |
+
+> **注意**: LoulanKey 是一个学习和研究项目，基于开源的 pico-fido。商用部署请考虑使用经过认证的商业产品。
 
 ---
 
@@ -140,18 +142,24 @@ pip install esptool espsecure espefuse
 # - USB Type-C 数据线
 ```
 
+### 克隆项目
+
+```bash
+git clone https://github.com/thomas-hiddenpeak/LoulanKey.git
+cd LoulanKey
+git submodule update --init --recursive
+```
+
 ### 构建固件
 
 ```bash
-# 克隆项目
-git clone https://github.com/yourusername/LoulanKey.git
-cd LoulanKey
-
-# 运行安全增强脚本
+# 运行安全增强脚本（可选）
 ./scripts/apply_security_enhancements.sh
 
 # 构建固件
-cd pico-fido/build
+cd pico-fido
+mkdir -p build
+cd build
 idf.py build
 ```
 
@@ -161,7 +169,8 @@ idf.py build
 # 开发模式（保留调试）
 idf.py -p /dev/ttyUSB0 flash monitor
 
-# 生产模式（完全锁定）
+# 生产模式（完全锁定，需根据实际需求配置）
+# 警告：生产模式会永久禁用某些功能，请参考文档
 idf.py -p /dev/ttyUSB0 flash
 ```
 
@@ -169,28 +178,30 @@ idf.py -p /dev/ttyUSB0 flash
 
 访问 [webauthn.io](https://webauthn.io) 测试 FIDO2 功能
 
-详细指南：[快速开始指南](docs/QUICK_START.md)
+更多详细信息请参考: 
+- [pico-fido 官方文档](https://github.com/polhenarejos/pico-fido)
+- [ESP32-S3 安全特性文档](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/security/index.html)
 
 ---
 
 ## 📚 文档
 
-### 用户文档
-- [📖 快速开始](docs/QUICK_START.md)
-- [🔧 用户手册](docs/USER_GUIDE.md)
-- [❓ 常见问题](docs/FAQ.md)
-- [🐛 故障排除](docs/TROUBLESHOOTING.md)
+### 项目文档
+- [📋 项目分析](PROJECT_ANALYSIS.md) - pico-fido 项目结构分析
+- [🔒 安全差距分析](SECURITY_GAPS_ANALYSIS.md) - ESP32-S3 安全特性分析
+- [📖 实施指南](IMPLEMENTATION_GUIDE.md) - 安全特性实施步骤
+- [📝 执行摘要](EXECUTIVE_SUMMARY.md) - 项目总体概览
+- [🏗️ 项目结构](PROJECT_STRUCTURE.md) - 代码结构说明
+- [🚀 推送指南](PUSH_GUIDE.md) - Git 操作指南
+- [🛡️ 安全说明](SECURITY.md) - 安全相关说明
 
-### 开发文档
-- [🏗️ 架构设计](docs/ARCHITECTURE.md)
-- [🔒 安全分析](docs/SECURITY_ANALYSIS.md)
-- [💻 开发指南](docs/DEVELOPMENT.md)
-- [🧪 测试指南](docs/TESTING.md)
+### 上游文档
+- [pico-fido README](pico-fido/README.md) - 原始项目文档
+- [pico-fido GitHub](https://github.com/polhenarejos/pico-fido) - 上游项目主页
+- [ESP32-S3 安全特性](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/security/index.html) - 官方安全文档
 
-### 硬件文档
-- [⚡ 硬件选型](docs/hardware/BOM.md)
-- [📐 原理图](docs/hardware/SCHEMATIC.md)
-- [🔌 引脚定义](docs/hardware/PINOUT.md)
+### 贡献文档
+- [🤝 贡献指南](CONTRIBUTING.md) - 如何贡献代码
 
 ---
 
@@ -210,14 +221,11 @@ idf.py -p /dev/ttyUSB0 flash
 - 按键: 1个用户按键（用户在场确认）
 - LED: 1个状态指示灯
 
-### 生产 PCB
+### 硬件信息
 
-我们提供了生产就绪的 PCB 设计：
-- 📐 尺寸: 30mm x 15mm (USB-A 外形)
-- 💰 成本: $5-8 (批量 100+)
-- 🏭 制造: 标准 2层 PCB
-
-设计文件：[hardware/pcb/](hardware/pcb/)
+更多硬件相关信息请参考：
+- [ESP32-S3 数据手册](https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf)
+- [ESP32-S3-DevKitC-1 用户指南](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/hw-reference/esp32s3/user-guide-devkitc-1.html)
 
 ---
 
@@ -252,7 +260,9 @@ Flash (AES-256 加密)
 | 版本降级 | 防回滚保护 |
 | 暴力破解 PIN | 重试限制和延迟 |
 
-详见：[安全分析文档](docs/SECURITY_ANALYSIS.md)
+更多详细安全分析请参考：
+- [SECURITY_GAPS_ANALYSIS.md](SECURITY_GAPS_ANALYSIS.md)
+- [IMPLEMENTATION_GUIDE.md](IMPLEMENTATION_GUIDE.md)
 
 ---
 
@@ -305,58 +315,50 @@ Flash (AES-256 加密)
 
 ## 📜 许可证
 
-本项目基于 [pico-fido](https://github.com/polhenarejos/pico-fido) 开发，采用双重许可：
+本项目基于 [pico-fido](https://github.com/polhenarejos/pico-fido) 开发，遵循相同的开源许可证：
 
-### 社区版（开源）
-- **许可证**: GNU Affero General Public License v3 (AGPLv3)
+### GNU Affero General Public License v3 (AGPLv3)
 - **用途**: 个人使用、学习、研究
-- **要求**: 衍生作品必须开源
+- **要求**: 衍生作品必须开源（根据 AGPLv3 条款）
+- **原始版权**: pico-fido © 2022 Pol Henarejos
 
-### 商业版
-- **许可证**: 商业许可证
-- **用途**: 商业产品、企业部署
-- **特性**: 
-  - 无需开源衍生代码
-  - 技术支持和 SLA
-  - 定制开发服务
-  - 批量授权折扣
+本项目的修改和增强部分同样采用 AGPLv3 许可证。
 
-详见：[LICENSE](LICENSE) | [商业授权咨询](mailto:commercial@loulankey.com)
+详见：[LICENSE](LICENSE)
+
+### 其他依赖项许可证
+
+- **MbedTLS**: Apache License 2.0
+- **ESP-IDF**: Apache License 2.0
+- **TinyCBOR**: MIT License
+
+请注意：本项目是基于 pico-fido 的学习和研究项目。如需商业使用，请遵守 AGPLv3 许可证要求或联系上游项目。
 
 ---
 
 ## 🎯 路线图
 
-### v1.0 (当前) - 基础功能
-- [x] FIDO2/WebAuthn 支持
-- [x] 完整硬件安全特性
-- [x] 基础 OATH 功能
-- [x] USB HID 设备
+### v1.0 (当前) - 基础增强
+- [x] ESP32-S3 硬件安全特性实现
+- [x] Secure Boot V2 集成
+- [x] Flash 加密支持
+- [x] eFuse 密钥保护
+- [x] 完整的中文文档
 
-### v1.1 (计划中) - 增强功能
-- [ ] NFC 支持
-- [ ] 蓝牙 BLE 支持
-- [ ] 高级 OATH 管理
-- [ ] Web 配置界面
+### 未来计划
+- [ ] 更完善的测试覆盖
+- [ ] 更详细的安全配置指南
+- [ ] 性能优化
+- [ ] 更多示例和教程
 
-### v1.2 (未来) - 企业特性
-- [ ] 多用户/多租户
-- [ ] 企业策略管理
-- [ ] 审计日志
-- [ ] 远程管理 API
-
-### v2.0 (愿景) - 下一代
-- [ ] 生物识别集成
-- [ ] 量子抗性算法
-- [ ] 分层确定性密钥
-- [ ] 硬件安全模块 (HSM) 模式
+欢迎贡献！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何参与。
 
 ---
 
 ## 🏆 致谢
 
 ### 项目基础
-- [pico-fido](https://github.com/polhenarejos/pico-fido) - 优秀的 FIDO2 实现
+- [pico-fido](https://github.com/polhenarejos/pico-fido) - 优秀的 FIDO2 实现，本项目的核心基础
 - [ESP-IDF](https://github.com/espressif/esp-idf) - Espressif 物联网开发框架
 - [MbedTLS](https://github.com/Mbed-TLS/mbedtls) - 加密库
 
@@ -364,30 +366,9 @@ Flash (AES-256 加密)
 - [FIDO Alliance](https://fidoalliance.org/) - FIDO2 标准
 - [W3C](https://www.w3.org/) - WebAuthn 规范
 
-### 社区
-- 所有贡献者和测试者
-- 安全研究人员
-- 开源社区
-
----
-
-## 📞 联系方式
-
-- 🌐 **官网**: [loulankey.com](https://loulankey.com) (建设中)
-- 📧 **邮箱**: [contact@loulankey.com](mailto:contact@loulankey.com)
-- 💬 **Discord**: [加入社区](https://discord.gg/loulankey)
-- 🐦 **Twitter**: [@LoulanKey](https://twitter.com/loulankey)
-- 📝 **博客**: [blog.loulankey.com](https://blog.loulankey.com)
-
----
-
-## 📈 项目统计
-
-![GitHub stars](https://img.shields.io/github/stars/yourusername/LoulanKey?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/LoulanKey?style=social)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/LoulanKey)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/LoulanKey)
-![GitHub license](https://img.shields.io/github/license/yourusername/LoulanKey)
+### 维护者
+- 本项目由 Thomas 个人维护
+- 欢迎通过 GitHub Issues 和 Pull Requests 参与贡献
 
 ---
 
@@ -395,8 +376,8 @@ Flash (AES-256 加密)
 
 **🔐 守护你的数字身份，从 LoulanKey 开始 🔐**
 
-Made with ❤️ by LoulanKey Team
+基于 pico-fido | 为学习和研究而生
 
-[⬆ 回到顶部](#loulankey---esp32-s3-fido2-安全认证器)
+[⬆ 回到顶部](#loulankey---esp32-s3-fido2-security-authenticator)
 
 </div>

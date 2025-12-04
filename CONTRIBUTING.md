@@ -30,7 +30,7 @@
 
 1. **Fork 项目**
    ```bash
-   git clone https://github.com/yourusername/LoulanKey.git
+   git clone https://github.com/thomas-hiddenpeak/LoulanKey.git
    cd LoulanKey
    ```
 
@@ -135,9 +135,9 @@ Closes #123
 如果你发现安全漏洞：
 
 1. **不要公开讨论**
-2. 发送邮件到 security@loulankey.com
+2. 通过 GitHub Security Advisories 私密报告
 3. 包含详细的漏洞信息和复现步骤
-4. 我们会在 48 小时内回复
+4. 我们会尽快回复并处理
 
 ## 📄 许可证
 
@@ -156,17 +156,17 @@ Closes #123
 
 ## 💬 沟通渠道
 
-- GitHub Issues: Bug 报告和功能请求
-- GitHub Discussions: 一般讨论
-- Discord: 实时聊天
-- Email: contact@loulankey.com
+- **GitHub Issues**: Bug 报告和功能请求
+- **GitHub Discussions**: 一般讨论和问答
+- **Pull Requests**: 代码贡献
 
 ## 🎓 学习资源
 
 新手贡献者可以从这些 Issue 开始：
 
-- [good first issue](https://github.com/yourusername/LoulanKey/labels/good%20first%20issue)
-- [help wanted](https://github.com/yourusername/LoulanKey/labels/help%20wanted)
+- 查找标记为 `good first issue` 的问题
+- 查找标记为 `help wanted` 的问题
+- 阅读现有文档和代码
 
 ## ✅ 检查清单
 
