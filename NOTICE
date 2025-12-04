@@ -1,0 +1,40 @@
+LoulanKey - ESP32-S3 FIDO2 Security Authenticator
+Copyright (c) 2024 Thomas
+
+This project is based on and includes code from:
+
+================================================================================
+pico-fido
+Copyright (c) 2022 Pol Henarejos
+Licensed under the GNU Affero General Public License v3.0 (AGPLv3)
+https://github.com/polhenarejos/pico-fido
+
+The LoulanKey project is a derivative work that adds security enhancements
+and documentation specifically for the ESP32-S3 platform. This derivative
+work is also licensed under AGPLv3 as required by the original license.
+================================================================================
+
+Additional third-party components included:
+
+MbedTLS
+Copyright (c) ARM Limited
+Licensed under the Apache License 2.0
+https://github.com/Mbed-TLS/mbedtls
+
+ESP-IDF
+Copyright (c) Espressif Systems
+Licensed under the Apache License 2.0
+https://github.com/espressif/esp-idf
+
+TinyCBOR
+Copyright (c) Intel Corporation
+Licensed under the MIT License
+https://github.com/intel/tinycbor
+
+================================================================================
+
+All modifications and additions made in the LoulanKey project are:
+Copyright (c) 2024 Thomas
+Licensed under the GNU Affero General Public License v3.0 (AGPLv3)
+
+For the full license text, see the LICENSE file.
