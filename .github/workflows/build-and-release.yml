@@ -29,7 +29,8 @@ jobs:
         run: |
           git clone --recursive https://github.com/espressif/esp-idf.git
           cd esp-idf
-          git checkout tags/v5.3.1
+          # Use latest stable v5.3.x release
+          git checkout release/v5.3
           ./install.sh ${{ matrix.target }}
       
       - name: Build firmware
