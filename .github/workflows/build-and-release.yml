@@ -46,7 +46,21 @@ jobs:
           source ../esp-idf/export.sh
           mkdir -p release
           cd build
-          esptool.py --chip $(echo ${{ matrix.target }} | tr '[:lower:]' '[:upper:]' | sed 's/ESP32S/ESP32-S/') merge_bin -o ../release/pico_fido_${{ matrix.target }}.bin @flash_args
+          # Determine chip name for esptool
+          if [ "${{ matrix.target }}" == "esp32s3" ]; then
+            CHIP_NAME="ESP32-S3"
+          elif [ "${{ matrix.target }}" == "esp32s2" ]; then
+            CHIP_NAME="ESP32-S2"
+          else
+            echo "Unknown target: ${{ matrix.target }}"
+            exit 1
+          fi
+          # Check if flash_args exists
+          if [ ! -f flash_args ]; then
+            echo "Error: flash_args file not found"
+            exit 1
+          fi
+          esptool.py --chip ${CHIP_NAME} merge_bin -o ../release/pico_fido_${{ matrix.target }}.bin @flash_args
       
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
@@ -88,36 +102,36 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/}
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           
-          cat > RELEASE_NOTES.md << 'EOF'
-          ## LoulanKey Firmware Release ${{ github.ref_name }}
+          cat > RELEASE_NOTES.md << EOF
+          ## LoulanKey Firmware Release ${VERSION}
           
           ### 📦 包含的固件文件
           
-          - `pico_fido_esp32s3.bin` - ESP32-S3 固件
-          - `pico_fido_esp32s2.bin` - ESP32-S2 固件
-          - `SHA256SUMS.txt` - 校验和文件
+          - \`pico_fido_esp32s3.bin\` - ESP32-S3 固件
+          - \`pico_fido_esp32s2.bin\` - ESP32-S2 固件
+          - \`SHA256SUMS.txt\` - 校验和文件
           
           ### 🔧 烧录方法
           
           #### 使用 esptool.py (推荐)
-          ```bash
+          \`\`\`bash
           # ESP32-S3
           esptool.py --chip esp32s3 -p /dev/ttyUSB0 -b 460800 write_flash 0x0 pico_fido_esp32s3.bin
           
           # ESP32-S2
           esptool.py --chip esp32s2 -p /dev/ttyUSB0 -b 460800 write_flash 0x0 pico_fido_esp32s2.bin
-          ```
+          \`\`\`
           
           #### 使用 idf.py
-          ```bash
+          \`\`\`bash
           cd pico-fido
           idf.py -p /dev/ttyUSB0 flash monitor
-          ```
+          \`\`\`
           
           ### ⚠️ 重要提示
           
           1. 烧录前请备份重要数据
-          2. 首次烧录建议使用完整擦除：`esptool.py --chip [esp32s3|esp32s2] -p /dev/ttyUSB0 erase_flash`
+          2. 首次烧录建议使用完整擦除：\`esptool.py --chip [esp32s3|esp32s2] -p /dev/ttyUSB0 erase_flash\`
           3. 如需启用安全特性（Secure Boot、Flash 加密），请参考项目文档
           
           ### 📚 更多信息
